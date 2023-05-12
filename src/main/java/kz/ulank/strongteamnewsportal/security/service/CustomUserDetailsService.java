@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
@@ -30,9 +31,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 );
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public UserDetails loadUserById(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email :" + id));
     }
+
 }

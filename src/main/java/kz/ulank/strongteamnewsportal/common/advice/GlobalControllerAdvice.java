@@ -53,7 +53,7 @@ public class GlobalControllerAdvice {
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ErrorResponse notSupportedException(HttpRequestMethodNotSupportedException ex) {
         log.debug(ex.getMessage(), ex.getCause());
-        return new ErrorResponse(String.valueOf(HttpStatus.METHOD_NOT_ALLOWED.value()),"Method Not Allowed. Please verify you request", TIMESTAMP);
+        return new ErrorResponse(String.valueOf(HttpStatus.METHOD_NOT_ALLOWED.value()), "Method Not Allowed. Please verify you request", TIMESTAMP);
     }
 
     @ExceptionHandler({Exception.class})
@@ -74,4 +74,5 @@ public class GlobalControllerAdvice {
 
         return new ErrorResponse(String.valueOf(HttpStatus.BAD_REQUEST.value()), errors.toString(), TIMESTAMP);
     }
+
 }

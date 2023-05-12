@@ -1,5 +1,7 @@
 package kz.ulank.strongteamnewsportal.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +34,10 @@ public class AuthController {
     private final AuthService authService;
 
     @SecurityRequirements
+    @Operation(
+            summary = "Sign up operation",
+            description = "Registers a new user."
+    )
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
             @RequestBody SignupRequest request
@@ -40,6 +46,10 @@ public class AuthController {
     }
 
     @SecurityRequirements
+    @Operation(
+            summary = "Sign in operation",
+            description = "Authenticates a user."
+    )
     @PostMapping("/authenticate")
     public ResponseEntity<AuthResponse> authenticate(
             @RequestBody SigninRequest request
@@ -47,7 +57,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.authenticate(request));
     }
 
-    @SecurityRequirements
+    @SecurityRequirements({
+            @SecurityRequirement(name = "bearer-token")
+    })
+    @Operation(
+            summary = "Refresh token operation",
+            description = "Refreshes the user's authentication token."
+    )
     @PostMapping("/refresh-token")
     public void refreshToken(
             HttpServletRequest request,
@@ -56,6 +72,13 @@ public class AuthController {
         authService.refreshToken(request, response);
     }
 
+    @SecurityRequirements({
+            @SecurityRequirement(name = "bearer-token")
+    })
+    @Operation(
+            summary = "Logout operation",
+            description = "Logs out the user."
+    )
     @GetMapping("/logout")
     public void logout() {
         log.debug("Logout user");
