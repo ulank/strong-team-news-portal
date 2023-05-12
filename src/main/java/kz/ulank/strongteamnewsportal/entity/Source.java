@@ -1,13 +1,13 @@
 package kz.ulank.strongteamnewsportal.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * Created by Ulan on 5/12/2023
@@ -28,5 +28,12 @@ public class Source {
 
     @Column(name = "url")
     private String url;
+
+    @OneToMany(mappedBy = "source", cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JsonIgnore
+    private List<News> news;
 
 }

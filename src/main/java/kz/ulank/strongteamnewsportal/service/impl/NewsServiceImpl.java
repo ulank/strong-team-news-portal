@@ -74,19 +74,18 @@ public class NewsServiceImpl implements NewsService {
 
         List<Topic> topics = new ArrayList<>();
 
-        newEntity.getTopics().forEach(topicDto -> topics.add(modelMapper.map(topicDto, Topic.class)));
+        newEntity.getTopics().forEach(topicDto -> topics.add(topicRepository.findTopicByNameStartsWith(topicDto.getName()).orElse(modelMapper.map(topicDto, Topic.class))));
 
-        News news = News.builder()
-                .id(id)
-                .title(newEntity.getTitle())
-                .content(newEntity.getContent())
-                .author(newEntity.getAuthor())
-                .topics(topics)
-                .description(newEntity.getDescription())
-                .source(sourceRepository.findById(newEntity.getSource().getId()).orElse(modelMapper.map(newEntity.getSource(), Source.class)))
-                .urlToImage(newEntity.getUrlToImage())
-                .url(newEntity.getUrl())
-                .build();
+        News news = findById(id);
+
+        news.setTitle(newEntity.getTitle());
+        news.setContent(newEntity.getContent());
+        news.setAuthor(newEntity.getAuthor());
+        news.setTopics(topics);
+        news.setDescription(newEntity.getDescription());
+        news.setSource(sourceRepository.findById(newEntity.getSource().getId()).orElse(modelMapper.map(newEntity.getSource(), Source.class)));
+        news.setUrlToImage(newEntity.getUrlToImage());
+        news.setUrl(newEntity.getUrl());
 
         return newsRepository.save(news);
     }
