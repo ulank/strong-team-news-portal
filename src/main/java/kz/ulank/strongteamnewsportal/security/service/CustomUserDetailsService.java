@@ -34,7 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public UserDetails loadUserById(UUID id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email :" + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id :" + id));
     }
 
 }

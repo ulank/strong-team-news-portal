@@ -29,6 +29,7 @@
         <org.yaml.snakeyaml>2.0</org.yaml.snakeyaml>
         <spring.doc.version>2.1.0</spring.doc.version>
         <io.jsonwebtoken.version>0.11.5</io.jsonwebtoken.version>
+        <org.modelmapper.version>3.1.1</org.modelmapper.version>
     </properties>
     <dependencies>
         <!-- Spring -->
@@ -108,6 +109,11 @@
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>${org.yaml.snakeyaml}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>${org.modelmapper.version}</version>
         </dependency>
 
     </dependencies>

@@ -13,4 +13,8 @@
         <sqlFile path="db/changes/230512_2_insert_roles.sql"/>
     </changeSet>
 
+    <changeSet id="3" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_3_create_logic_tables.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
