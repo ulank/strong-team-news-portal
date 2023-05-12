@@ -9,4 +9,8 @@
         <sqlFile path="db/changes/230512_1_create_auth_tables.sql"/>
     </changeSet>
 
+    <changeSet id="2" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_2_insert_roles.sql"/>
+    </changeSet>
+
 </databaseChangeLog>

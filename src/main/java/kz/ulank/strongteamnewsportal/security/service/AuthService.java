@@ -4,11 +4,13 @@ package kz.ulank.strongteamnewsportal.security.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kz.ulank.strongteamnewsportal.entity.Role;
 import kz.ulank.strongteamnewsportal.entity.Token;
 import kz.ulank.strongteamnewsportal.entity.User;
 import kz.ulank.strongteamnewsportal.model.request.SigninRequest;
 import kz.ulank.strongteamnewsportal.model.request.SignupRequest;
 import kz.ulank.strongteamnewsportal.model.response.AuthResponse;
+import kz.ulank.strongteamnewsportal.repository.RoleRepository;
 import kz.ulank.strongteamnewsportal.repository.TokenRepository;
 import kz.ulank.strongteamnewsportal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Ulan on 5/12/2023
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 public class AuthService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -40,7 +43,8 @@ public class AuthService {
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .roles(new ArrayList<>())
+                .roles(roleRepository.findRolesByCode(Role.RoleEnum.ROLE_USER))
+                .enabled(true)
                 .build();
         User savedUser = userRepository.save(user);
         String jwtToken = jwtService.generateToken(user);
@@ -57,14 +61,14 @@ public class AuthService {
     public AuthResponse authenticate(SigninRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        request.getUsername(),
                         request.getPassword()
                 )
         );
-        var user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findActiveByUsername(request.getUsername())
                 .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        String jwtToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
         return AuthResponse.builder()
@@ -74,7 +78,7 @@ public class AuthService {
     }
 
     private void saveUserToken(User user, String jwtToken) {
-        var token = Token.builder()
+        Token token = Token.builder()
                 .user(user)
                 .token(jwtToken)
                 .tokenType(Token.TokenType.BEARER)
@@ -85,7 +89,7 @@ public class AuthService {
     }
 
     private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+        List<Token> validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {

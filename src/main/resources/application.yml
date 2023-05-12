@@ -14,7 +14,9 @@ spring:
     password: pWiUuHyyb3Wl
   liquibase:
     change-log: classpath:/db/changelog.xml
-
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
 application:
   security:
