@@ -30,6 +30,8 @@
         <spring.doc.version>2.1.0</spring.doc.version>
         <io.jsonwebtoken.version>0.11.5</io.jsonwebtoken.version>
         <org.modelmapper.version>3.1.1</org.modelmapper.version>
+        <spring.cloud.openfeign.version>3.1.1</spring.cloud.openfeign.version>
+        <com.netflix.feign.version>8.18.0</com.netflix.feign.version>
     </properties>
     <dependencies>
         <!-- Spring -->
@@ -67,6 +69,17 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-metadata</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>${spring.cloud.openfeign.version}</version>
+        </dependency>
+
 
         <!-- OpenAPI -->
         <dependency>
@@ -115,6 +128,12 @@
             <artifactId>modelmapper</artifactId>
             <version>${org.modelmapper.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.netflix.feign</groupId>
+            <artifactId>feign-jackson</artifactId>
+            <version>${com.netflix.feign.version}</version>
+        </dependency>
+
 
     </dependencies>
 

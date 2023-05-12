@@ -4,14 +4,21 @@ import kz.ulank.strongteamnewsportal.common.exception.NotFoundException;
 import kz.ulank.strongteamnewsportal.entity.News;
 import kz.ulank.strongteamnewsportal.entity.Source;
 import kz.ulank.strongteamnewsportal.entity.Topic;
+import kz.ulank.strongteamnewsportal.integration.response.EverythingResponse;
+import kz.ulank.strongteamnewsportal.integration.service.NewsApiService;
 import kz.ulank.strongteamnewsportal.model.dto.NewsDto;
+import kz.ulank.strongteamnewsportal.model.dto.SourceDto;
 import kz.ulank.strongteamnewsportal.repository.NewsRepository;
 import kz.ulank.strongteamnewsportal.repository.SourceRepository;
 import kz.ulank.strongteamnewsportal.repository.TopicRepository;
 import kz.ulank.strongteamnewsportal.service.NewsService;
+import kz.ulank.strongteamnewsportal.util.model.Pagination;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +35,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 
+    private final ModelMapper modelMapper;
     private final NewsRepository newsRepository;
     private final SourceRepository sourceRepository;
     private final TopicRepository topicRepository;
-    private final ModelMapper modelMapper;
+    private final NewsApiService newsApiService;
 
     /**
      * Saves the given entity to the data source.
@@ -55,6 +63,7 @@ public class NewsServiceImpl implements NewsService {
                 .source(sourceRepository.findById(newEntity.getSource().getId()).orElse(modelMapper.map(newEntity.getSource(), Source.class)))
                 .urlToImage(newEntity.getUrlToImage())
                 .url(newEntity.getUrl())
+                .published(true)
                 .build();
 
         log.info(news.toString());
@@ -86,6 +95,7 @@ public class NewsServiceImpl implements NewsService {
         news.setSource(sourceRepository.findById(newEntity.getSource().getId()).orElse(modelMapper.map(newEntity.getSource(), Source.class)));
         news.setUrlToImage(newEntity.getUrlToImage());
         news.setUrl(newEntity.getUrl());
+        news.setPublished(true);
 
         return newsRepository.save(news);
     }
@@ -123,5 +133,51 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public News findById(UUID id) {
         return newsRepository.findById(id).orElseThrow(() -> new NotFoundException("News not found with id " + id));
+    }
+
+
+    /**
+     * @param slug
+     * @return
+     */
+    @Override
+    public List<News> saveNewsUsingSlugByNewsApi(String slug) {
+        final String sourceId = "news-api-v2";
+
+        Source source = sourceRepository.findById(sourceId).orElse(sourceRepository.save(modelMapper.map(new SourceDto(sourceId, "News Api", "https://newsapi.org/"), Source.class)));
+
+        List<News> news = new ArrayList<>();
+
+        EverythingResponse everythingBySlug = newsApiService.getEverythingBySlug(slug);
+
+        everythingBySlug.getArticles().forEach((EverythingResponse.Articles articles) -> {
+            news.add(News.builder()
+                    .title(articles.getTitle())
+                    .content(articles.getContent())
+                    .author(articles.getAuthor())
+                    .description(articles.getDescription())
+                    .source(source)
+                    .urlToImage(articles.getUrlToImage())
+                    .url(articles.getUrl())
+                    .published(true)
+                    .build());
+        });
+
+        return newsRepository.saveAll(news);
+    }
+
+    /**
+     * @param page
+     * @param size
+     * @return
+     */
+    @Override
+    public Pagination findAllByPublished(boolean published, int page, int size) {
+        Pageable paging = PageRequest.of(page, size);
+        Page<News> pageNews = newsRepository.findNewsByPublished(published, paging);
+        List<News> news = pageNews.getContent();
+        Pagination build = Pagination.builder().articles(news).page(page).pageSize(size).totalResults(news.size()).build();
+        log.info(build.toString());
+        return build;
     }
 }

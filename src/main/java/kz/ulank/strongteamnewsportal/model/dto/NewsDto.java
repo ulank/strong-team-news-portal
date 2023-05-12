@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 public class NewsDto {
     @NotBlank
-    @Size(max = 255)
     private String title;
 
     @NotBlank

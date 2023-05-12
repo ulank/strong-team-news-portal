@@ -1,4 +1,4 @@
-package kz.ulank.strongteamnewsportal.util;
+package kz.ulank.strongteamnewsportal.util.operation;
 
 
 import java.util.List;

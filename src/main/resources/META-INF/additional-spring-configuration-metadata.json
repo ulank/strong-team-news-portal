@@ -1,0 +1,15 @@
+{
+  "properties": [
+    {
+      "name": "integration.newsapi.apiKey",
+      "type": "java.lang.String",
+      "sourceType": "kz.ulank.strongteamnewsportal.integration.properties.NewsApiProperties",
+      "description": "Description for integration.newsapi.apiKey."
+    },
+    {
+      "name": "integration.newsapi.url",
+      "type": "java.lang.String",
+      "description": "Description for integration.newsapi.url."
+    }
+  ]
+}

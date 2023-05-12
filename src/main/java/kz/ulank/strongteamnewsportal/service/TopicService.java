@@ -2,7 +2,7 @@ package kz.ulank.strongteamnewsportal.service;
 
 import kz.ulank.strongteamnewsportal.entity.Topic;
 import kz.ulank.strongteamnewsportal.model.dto.TopicDto;
-import kz.ulank.strongteamnewsportal.util.CrudOperation;
+import kz.ulank.strongteamnewsportal.util.operation.CrudOperation;
 
 
 /**

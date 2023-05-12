@@ -61,6 +61,9 @@ public class News {
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Source source;
 
+    @Column(name = "published", columnDefinition = "default false")
+    private boolean published;
+
     @Column(name = "published_at", columnDefinition = "TIMESTAMP")
     @CreationTimestamp
     private ZonedDateTime publishedAt;

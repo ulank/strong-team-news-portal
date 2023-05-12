@@ -28,3 +28,10 @@ application:
       expiration: 86400000
       refresh-token:
         expiration: 604800000
+
+integration:
+  newsapi:
+    # noinspection SpringBootApplicationYaml
+    url: https://newsapi.org/v2
+    # noinspection SpringBootApplicationYaml
+    apiKey: c331c76120524c5eba47396c4b1d27db

@@ -17,4 +17,17 @@
         <sqlFile path="db/changes/230512_3_create_logic_tables.sql"/>
     </changeSet>
 
+    <changeSet id="4" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_4_alter_news_table.sql"/>
+    </changeSet>
+
+    <changeSet id="5" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_5_alter_news_table.sql"/>
+    </changeSet>
+
+    <changeSet id="6" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_6_alter_news_table.sql"/>
+    </changeSet>
+
+
 </databaseChangeLog>
