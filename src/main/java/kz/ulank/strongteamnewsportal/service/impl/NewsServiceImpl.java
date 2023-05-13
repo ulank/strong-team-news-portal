@@ -165,7 +165,10 @@ public class NewsServiceImpl implements NewsService {
 
         TopHeadlinesResponse topHeadlinesResponse = newsApiService.getTopHeadlinesResponse(country);
 
-        topHeadlinesResponse.getArticles().forEach((Articles articles) -> addNewsFromResponse(news, articles.getSource().getId(), articles.getSource().getName(), articles.getTitle(), articles.getContent(), articles.getAuthor(), articles.getDescription(), articles.getUrlToImage(), articles.getUrl(), articles.getPublishedAt()));
+        topHeadlinesResponse.getArticles().forEach((Articles articles) -> {
+            log.info(articles.toString());
+            addNewsFromResponse(news, articles.getSource().getId(), articles.getSource().getName(), articles.getTitle(), articles.getContent(), articles.getAuthor(), articles.getDescription(), articles.getUrlToImage(), articles.getUrl(), articles.getPublishedAt());
+        });
 
 
         return newsRepository.saveAll(news);
@@ -193,7 +196,6 @@ public class NewsServiceImpl implements NewsService {
                     .publishedAt(ZonedDateTime.parse(publishedAt))
                     .build());
 
-        log.info(description);
     }
 
 

@@ -29,8 +29,8 @@ public class SchedulerForFetchingApi {
      * This method is scheduled to run every day at midnight (in the Asia/Almaty time zone). It is responsible for storing the news sources in files.
      * Two scheduler one for testing, another was on task
      */
-//    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Almaty")
-    @Scheduled(cron = "0 * * * * *")
+//    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Almaty")
     public void fetchingAndSaveNewsFromRandomCountry() {
         log.info(MASK_LOG + "Fetching.." + MASK_LOG);
 
