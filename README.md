@@ -59,5 +59,5 @@ http://localhost:8089/swagger-ui/index.html#/
 | **Topic Controller**  |                Контроллер _для тем новостей_                | 
 | **Demo Controller**   | Контроллер _для проверки работоспособности Spring Security_ | 
 
-
-<img src="assets/swagger-main.png" width="2560" height="1402" alt="swagger-main"/>
+---
+<img src="assets/swagger-lock.png" alt="swagger-lock"/>
