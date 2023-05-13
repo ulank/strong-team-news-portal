@@ -4,6 +4,7 @@ import kz.ulank.strongteamnewsportal.common.exception.NotFoundException;
 import kz.ulank.strongteamnewsportal.entity.News;
 import kz.ulank.strongteamnewsportal.entity.Source;
 import kz.ulank.strongteamnewsportal.entity.Topic;
+import kz.ulank.strongteamnewsportal.integration.enums.EverythingLang;
 import kz.ulank.strongteamnewsportal.integration.response.EverythingResponse;
 import kz.ulank.strongteamnewsportal.integration.service.NewsApiService;
 import kz.ulank.strongteamnewsportal.model.dto.NewsDto;
@@ -23,6 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -63,6 +67,7 @@ public class NewsServiceImpl implements NewsService {
                 .source(sourceRepository.findById(newEntity.getSource().getId()).orElse(modelMapper.map(newEntity.getSource(), Source.class)))
                 .urlToImage(newEntity.getUrlToImage())
                 .url(newEntity.getUrl())
+                .publishedAt(ZonedDateTime.now())
                 .published(true)
                 .build();
 
@@ -137,39 +142,54 @@ public class NewsServiceImpl implements NewsService {
 
 
     /**
-     * @param slug
-     * @return
+     * This method saves news articles using the provided slug from News API. It retrieves the articles using the slug, maps the data to a News object, and saves the News object to the news repository. It returns a list of the saved news articles.
+     *
+     * @param slug the slug used to retrieve news articles from the News API
+     * @return a list of the saved news articles
      */
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public List<News> saveNewsUsingSlugByNewsApi(String slug) {
-        final String sourceId = "news-api-v2";
-
-        Source source = sourceRepository.findById(sourceId).orElse(sourceRepository.save(modelMapper.map(new SourceDto(sourceId, "News Api", "https://newsapi.org/"), Source.class)));
 
         List<News> news = new ArrayList<>();
 
         EverythingResponse everythingBySlug = newsApiService.getEverythingBySlug(slug);
 
         everythingBySlug.getArticles().forEach((EverythingResponse.Articles articles) -> {
-            news.add(News.builder()
-                    .title(articles.getTitle())
-                    .content(articles.getContent())
-                    .author(articles.getAuthor())
-                    .description(articles.getDescription())
-                    .source(source)
-                    .urlToImage(articles.getUrlToImage())
-                    .url(articles.getUrl())
-                    .published(true)
-                    .build());
+
+            Source source;
+
+            if (articles.getSource().getId() != null) {
+                source = sourceRepository.findById(articles.getSource().getId()).orElse(sourceRepository.save(modelMapper.map(new SourceDto(articles.getSource().getId(), articles.getSource().getName(), null), Source.class)));
+            } else {
+                source = sourceRepository.findSourceByNameStartsWith(articles.getSource().getName()).orElse(sourceRepository.save(modelMapper.map(new SourceDto(articles.getSource().getName().toLowerCase(), articles.getSource().getName(), null), Source.class)));
+            }
+
+            if (newsRepository.findByTitleStartsWith(articles.getTitle()).isEmpty())
+                news.add(News.builder()
+                        .title(articles.getTitle())
+                        .content(articles.getContent())
+                        .author(articles.getAuthor())
+                        .description(articles.getDescription())
+                        .source(source)
+                        .urlToImage(articles.getUrlToImage())
+                        .url(articles.getUrl())
+                        .published(true)
+                        .publishedAt(ZonedDateTime.parse(articles.getPublishedAt()))
+                        .build());
         });
+
 
         return newsRepository.saveAll(news);
     }
 
     /**
-     * @param page
-     * @param size
-     * @return
+     * This method retrieves a paginated list of news articles by their published status. It retrieves the news articles from the news repository and returns them as a Pagination object.
+     *
+     * @param published the published status of the news articles to retrieve
+     * @param page      the page number to retrieve
+     * @param size      the number of articles to retrieve per page
+     * @return a Pagination object containing the retrieved news articles
      */
     @Override
     public Pagination findAllByPublished(boolean published, int page, int size) {
@@ -177,7 +197,7 @@ public class NewsServiceImpl implements NewsService {
         Page<News> pageNews = newsRepository.findNewsByPublished(published, paging);
         List<News> news = pageNews.getContent();
         Pagination build = Pagination.builder().articles(news).page(page).pageSize(size).totalResults(news.size()).build();
-        log.info(build.toString());
+        log.debug(build.toString());
         return build;
     }
 }

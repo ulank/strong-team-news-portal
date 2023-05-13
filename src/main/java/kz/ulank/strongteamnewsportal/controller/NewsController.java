@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.ulank.strongteamnewsportal.entity.News;
+import kz.ulank.strongteamnewsportal.integration.enums.EverythingLang;
 import kz.ulank.strongteamnewsportal.model.dto.NewsDto;
 import kz.ulank.strongteamnewsportal.service.NewsService;
 import kz.ulank.strongteamnewsportal.util.model.Pagination;

@@ -1,6 +1,7 @@
 package kz.ulank.strongteamnewsportal.service;
 
 import kz.ulank.strongteamnewsportal.entity.News;
+import kz.ulank.strongteamnewsportal.integration.enums.EverythingLang;
 import kz.ulank.strongteamnewsportal.model.dto.NewsDto;
 import kz.ulank.strongteamnewsportal.util.model.Pagination;
 import kz.ulank.strongteamnewsportal.util.operation.CrudOperation;

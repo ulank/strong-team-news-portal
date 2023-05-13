@@ -65,7 +65,6 @@ public class News {
     private boolean published;
 
     @Column(name = "published_at", columnDefinition = "TIMESTAMP")
-    @CreationTimestamp
     private ZonedDateTime publishedAt;
 
 }
