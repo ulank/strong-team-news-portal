@@ -147,11 +147,11 @@ http://localhost:8089/swagger-ui/index.html#/
 | **Demo Controller**   | Контроллер _для проверки работоспособности Spring Security_ | 
 
 ---
-<img src="assets/swagger-lock.png" alt="swagger-lock"/>
+<img src="assets/swagger-lock.png"  alt="swagger-lock"/>
 ---
 После перейдите на [Auth Controller APIs](http://localhost:8089/swagger-ui/index.html#/Auth)
 
-<img src="assets/signup.png" alt="signup"/>
+<img src="assets/signup.png" width="1759" height="866" alt="signup"/>
 
 Таков ответ дольжен вернуть.
 
@@ -164,7 +164,7 @@ http://localhost:8089/swagger-ui/index.html#/
 
 Дальше присвоиваете токен:
 
-<img src="assets/unlock.png" alt="unlock"/>
+<img src="assets/unlock.png" width="1616" height="1175" alt="unlock"/>
 
 Если токен не присвоен или просрочился то выйдет
 
@@ -172,10 +172,19 @@ http://localhost:8089/swagger-ui/index.html#/
  401 Unauthorized
 ```
 
+---
+
+1. [ ] GET, POST, PUT, DELETE методы для источников новостей;
+2. [ ] GET, POST, PUT, DELETE методы для новостей;
+3. [ ] GET, POST, PUT, DELETE методы для новостных тем;
+4. [ ] GET метод получения списка всех источников новостей;
+5. [ ] GET метод получения списка всех тем новостей;
+6. [ ] GET метод получения списка всех новостей (с пагинацией);
+7. [ ] GET метод получения списка новостей по id источника (с пагинацией);
+8. [ ] GET метод получения списка новостей по id темы (с пагинацией);
 
 
-
-
+  
 
 
 
