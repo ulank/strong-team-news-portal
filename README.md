@@ -188,67 +188,118 @@ http://localhost:8089/swagger-ui/index.html#/
 ---
 
 ## Документация планнеров
-  
+
 ```java
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Almaty")
-    public void storingNewsEachSources() {
-        log.info(MASK_LOG + "Stored sources to temporary directory starting" + MASK_LOG);
+public void storingNewsEachSources(){
+        log.info(MASK_LOG+"Stored sources to temporary directory starting"+MASK_LOG);
 
-        List<Source> sources = sourceRepository.findAll();
+        List<Source> sources=sourceRepository.findAll();
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder=new GsonBuilder();
 
         gsonBuilder.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY);
-        gsonBuilder.registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeTypeAdapter());
+        gsonBuilder.registerTypeAdapter(ZonedDateTime.class,new ZonedDateTimeTypeAdapter());
 
-        Gson gson = gsonBuilder
-                .create();
+        Gson gson=gsonBuilder
+        .create();
 
-        if (sources.size() > 0)
-            sources.forEach(source -> {
-                File folder = new File(TEMP_FOLDER_LOCATION + "/" + source.getName());
-                if (!folder.exists()) {
-                    if (folder.mkdir()) {
-                        File file = new File(TEMP_FOLDER_LOCATION + "/" + source.getName() + "/" + LocalDateTime.now().format(LOCAL_TIME_FORMATTER) + "-" + (source.getId() != null ? source.getId() : source.getName()) + FILE_TYPE);
-                        try {
-                            if (file.createNewFile()) {
-                                FileWriter fileWriter = new FileWriter(file);
+        if(sources.size()>0)
+        sources.forEach(source->{
+        File folder=new File(TEMP_FOLDER_LOCATION+"/"+source.getName());
+        if(!folder.exists()){
+        if(folder.mkdir()){
+        File file=new File(TEMP_FOLDER_LOCATION+"/"+source.getName()+"/"+LocalDateTime.now().format(LOCAL_TIME_FORMATTER)+"-"+(source.getId()!=null?source.getId():source.getName())+FILE_TYPE);
+        try{
+        if(file.createNewFile()){
+        FileWriter fileWriter=new FileWriter(file);
 
-                                List<News> news;
+        List<News> news;
 
-                                if (source.getId() != null) {
-                                    news = newsRepository.findNewsBySourceId(source.getId());
-                                } else {
-                                    news = newsRepository.findNewsBySourceName(source.getName());
-                                }
+        if(source.getId()!=null){
+        news=newsRepository.findNewsBySourceId(source.getId());
+        }else{
+        news=newsRepository.findNewsBySourceName(source.getName());
+        }
 
-                                fileWriter.write(gson.toJson(news));
-                                fileWriter.close();
-                            } else {
-                                System.out.println("Failed to create file!");
-                            }
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+        fileWriter.write(gson.toJson(news));
+        fileWriter.close();
+        }else{
+        System.out.println("Failed to create file!");
+        }
+        }catch(IOException e){
+        throw new RuntimeException(e);
+        }
 
-                    } else {
-                        System.out.println("Failed to create directory!");
-                    }
-                }
-            });
+        }else{
+        System.out.println("Failed to create directory!");
+        }
+        }
+        });
 
-        log.info(MASK_LOG + "Stored sources to temporary directory is done" + MASK_LOG);
-    }
+        log.info(MASK_LOG+"Stored sources to temporary directory is done"+MASK_LOG);
+        }
 ```
 
-Все источники храняться в <code>src/main/resources/temp</code> сначал открывается папка для источника затем заполняется новостями.
+Все источники храняться в <code>src/main/resources/temp</code> сначал открывается папка для источника затем заполняется
+новостями.
 
 <img src="assets/storing.png"  alt="unlock"/>
 
+Я добавил в .gitignore вдруг случайно запушу 😂
 
+---
 
+## Интеграция NewsAPI
 
+Также я написал интеграцию с [NewsAPI](https://newsapi.org/).
 
+Там используют <code>apiKey</code> я поставил свой ключ, если вдруг ключ перестанет работать то зарегайтесь и вставьте
+ключ в <code>application.yml</code>
+
+```yaml
+integration:
+  newsapi:
+    # noinspection SpringBootApplicationYaml
+    url: https://newsapi.org/v2
+    # noinspection SpringBootApplicationYaml
+    apiKey: c331c76120524c5eba47396c4b1d27db
+```
+
+Реализовал интеграцию с помощью OpenFeign.
+
+```xml
+
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+    <version>${spring.cloud.openfeign.version}</version>
+</dependency>
+
+```
+
+Также добавил планер чтобы каждую ночь в 23:00 сохраняет новости из рандомной страны:
+
+```java
+  @Scheduled(cron = "0 0 23 * * *", zone = "Asia/Almaty")
+    public void fetchingAndSaveNewsFromRandomCountry() {
+        log.info(MASK_LOG + "Fetching.." + MASK_LOG);
+
+        String randomCountry = countries.stream().skip(new Random().nextInt(countries.size())).findFirst().orElse("us");
+
+        log.info(MASK_LOG + "Random country - " + randomCountry + MASK_LOG);
+
+        List<News> news = newsService.saveNewsByNewsApi(randomCountry);
+
+        log.info(MASK_LOG + "News size : " + news.size() + MASK_LOG);
+
+        log.info(MASK_LOG + "Fetching is done and saved to database" + MASK_LOG);
+    }
+```
+
+По запросам тоже добавил что по ключевому слову могли находить новости и сохранять у себя в базе:
+
+<img src="assets/slug.png"  alt="unlock"/>
 
 
 
