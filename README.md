@@ -60,4 +60,4 @@ http://localhost:8089/swagger-ui/index.html#/
 | **Demo Controller**   | Контроллер _для проверки работоспособности Spring Security_ | 
 
 ---
-<img src="assets/swagger-lock.png" width="1400" height="1200" alt="swagger-lock"/>
+<img src="assets/swagger-lock.png" alt="swagger-lock"/>
