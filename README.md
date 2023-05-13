@@ -18,7 +18,7 @@ ulankdt@gmail.com | +77087314002
 docker compose -f docker-compose-local.yml up -d
 ```
 
-NOTE: Проверьте доступен ли внейшний порт <code> 5433 </code>
+NOTE: Проверьте доступен ли внешний порт <code> 5433 </code>
 
 ```yaml
 version: '3.9'
@@ -72,7 +72,7 @@ services:
     restart: unless-stopped
 ```
 
-Дальше запустите проект и запуститься миграция всех таблиц с помощью **Liquidbase**.
+Дальше запустите проект и запуститься миграция всех таблиц с помощью **Liquibase**.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -119,7 +119,7 @@ Liquibase - это инструмент для управления миграц
 
 Если у вас не видна схема <code>private</code>, то нажмите на <code>1 of 4</code> и там в схема нажмите галочку.
 
-- Схема private - для работы с бизнес логики
+- Схема private - для работы бизнес логики
 - Схема public - для changelog-ов
 
 ## Документация для запросов
@@ -134,9 +134,9 @@ Swagger OpenAPI - это спецификация, которая позволя
 http://localhost:8089/swagger-ui/index.html#/
 ```
 
-Для того, чтобы получить доступ к защищенным запросам (POST, PUT, PATCH, DELETE), необходимо получить токен.
+Для того чтобы получить доступ к защищенным запросам (POST, PUT, PATCH, DELETE), необходимо получить токен.
 
-Ниже приведена таблица с котроллерами и их описанием:
+Ниже приведена таблица с контроллерами и их описанием:
 
 | Контроллеры           |                          Описание                           |
 |:----------------------|:-----------------------------------------------------------:|
@@ -151,9 +151,9 @@ http://localhost:8089/swagger-ui/index.html#/
 ---
 После перейдите на [Auth Controller APIs](http://localhost:8089/swagger-ui/index.html#/Auth)
 
-и зарегайтесь <code>username</code> и <code>email</code> должен быть уникальным.
+и зарегистрироваться <code>username</code> и <code>email</code> должен быть уникальным.
 
-Таков ответ дольжен вернуть.
+Таков ответ должен вернуть.
 
 ```json
 {
@@ -162,11 +162,11 @@ http://localhost:8089/swagger-ui/index.html#/
 }
 ```
 
-Дальше присвоиваете токен:
+Дальше присваиваете токен:
 
 <img src="assets/unlock.png"  alt="unlock"/>
 
-Если токен не присвоен или просрочился то выйдет
+Если токен не присвоен или просрочен, то выйдет:
 
 ```
  401 Unauthorized
@@ -187,10 +187,98 @@ http://localhost:8089/swagger-ui/index.html#/
 
 ---
 
-## Документация планнеров
+## Примеры для POST /api/v1/news
+
+Первый пример:
+
+```json
+{
+  "title": "New Study Shows Benefits of Exercise for Mental Health",
+  "content": "A new study published in the Journal of Mental Health has shown that regular exercise can have a significant positive impact on mental health. The study followed a group of participants over the course of six months, and found that those who exercised regularly reported lower levels of depression and anxiety, and higher levels of overall well-being.",
+  "description": "A new study has shown that regular exercise can have a significant positive impact on mental health.",
+  "author": "John Smith",
+  "url": "https://example.com/new-study-shows-benefits-of-exercise",
+  "urlToImage": "https://example.com/images/new-study.jpg",
+  "topics": [
+    {
+      "name": "Mental Health",
+      "description": "News and information related to mental health"
+    },
+    {
+      "name": "Exercise",
+      "description": "News and information related to exercise and physical fitness"
+    }
+  ],
+  "source": {
+    "id": "example",
+    "name": "Example News",
+    "url": "https://example.com/"
+  }
+}
+```
+
+Второй пример:
+
+```json
+{
+  "title": "New Study Finds Link Between Social Media Use and Decreased Self-Esteem",
+  "content": "A new study published in the Journal of Social Psychology has found a link between social media use and decreased self-esteem. The study surveyed a group of participants over the course of six months, and found that those who spent more time on social media reported lower levels of self-esteem than those who spent less time on social media.",
+  "description": "A new study has found a link between social media use and decreased self-esteem.",
+  "author": "Mark Wilson",
+  "url": "https://example.com/new-study-finds-link-between-social-media-and-self-esteem",
+  "urlToImage": "https://example.com/images/social-media-study.jpg",
+  "topics": [
+    {
+      "name": "Social Media",
+      "description": "News and information related to social media and online communication"
+    },
+    {
+      "name": "Mental Health",
+      "description": "News and information related to mental health"
+    }
+  ],
+  "source": {
+    "id": "example",
+    "name": "Example News",
+    "url": "https://example.com/"
+  }
+}
+```
+
+Третий пример:
+
+```json
+{
+  "title": "New Study Finds Link Between Coffee Consumption and Reduced Risk of Alzheimer's Disease",
+  "content": "A new study published in the Journal of Alzheimer's Disease has found a link between coffee consumption and a reduced risk of developing Alzheimer's disease. The study followed a group of participants over the course of ten years, and found that those who drank three to five cups of coffee per day had a 30% lower risk of developing Alzheimer's disease than those who drank less than two cups per day.",
+  "description": "A new study has found a link between coffee consumption and a reduced risk of developing Alzheimer's disease.",
+  "author": "Jane Doe",
+  "url": "https://example.com/new-study-finds-link-between-coffee-and-alzheimers",
+  "urlToImage": "https://example.com/images/coffee-study.jpg",
+  "topics": [
+    {
+      "name": "Alzheimer's Disease",
+      "description": "News and information related to Alzheimer's disease and dementia"
+    },
+    {
+      "name": "Coffee",
+      "description": "News and information related to coffee and caffeine"
+    }
+  ],
+  "source": {
+    "id": "example",
+    "name": "Example News",
+    "url": "https://example.com/"
+  }
+}
+```
+
+---
+
+## Документация планеров
 
 ```java
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Almaty")
+@Scheduled(cron = "0 0 0 * * *", zone = "Asia/Almaty")
 public void storingNewsEachSources(){
         log.info(MASK_LOG+"Stored sources to temporary directory starting"+MASK_LOG);
 
@@ -241,12 +329,12 @@ public void storingNewsEachSources(){
         }
 ```
 
-Все источники храняться в <code>src/main/resources/temp</code> сначал открывается папка для источника затем заполняется
+Все источники хранятся в <code>src/main/resources/temp</code> сначала открывается папка для источника затем заполняется
 новостями.
 
 <img src="assets/storing.png"  alt="unlock"/>
 
-Я добавил в .gitignore вдруг случайно запушу 😂
+Я добавил в <code>.gitignore</code> вдруг случайно запушу 😂
 
 ---
 
@@ -254,8 +342,8 @@ public void storingNewsEachSources(){
 
 Также я написал интеграцию с [NewsAPI](https://newsapi.org/).
 
-Там используют <code>apiKey</code> я поставил свой ключ, если вдруг ключ перестанет работать то зарегайтесь и вставьте
-ключ в <code>application.yml</code>
+Там используют <code>apiKey</code> я поставил свой ключ, если вдруг ключ перестанет работать то зарегистрируйтесь и вставьте
+ключ <code>apiKey</code> в <code>application.yml</code>
 
 ```yaml
 integration:
@@ -278,31 +366,34 @@ integration:
 
 ```
 
-Также добавил планер чтобы каждую ночь в 23:00 сохраняет новости из рандомной страны:
+Также добавил планер чтобы каждую ночь в 23:00 сохраняет новости из случайной страны:
 
 ```java
   @Scheduled(cron = "0 0 23 * * *", zone = "Asia/Almaty")
-    public void fetchingAndSaveNewsFromRandomCountry() {
-        log.info(MASK_LOG + "Fetching.." + MASK_LOG);
+public void fetchingAndSaveNewsFromRandomCountry(){
+        log.info(MASK_LOG+"Fetching.."+MASK_LOG);
 
-        String randomCountry = countries.stream().skip(new Random().nextInt(countries.size())).findFirst().orElse("us");
+        String randomCountry=countries.stream().skip(new Random().nextInt(countries.size())).findFirst().orElse("us");
 
-        log.info(MASK_LOG + "Random country - " + randomCountry + MASK_LOG);
+        log.info(MASK_LOG+"Random country - "+randomCountry+MASK_LOG);
 
-        List<News> news = newsService.saveNewsByNewsApi(randomCountry);
+        List<News> news=newsService.saveNewsByNewsApi(randomCountry);
 
-        log.info(MASK_LOG + "News size : " + news.size() + MASK_LOG);
+        log.info(MASK_LOG+"News size : "+news.size()+MASK_LOG);
 
-        log.info(MASK_LOG + "Fetching is done and saved to database" + MASK_LOG);
-    }
+        log.info(MASK_LOG+"Fetching is done and saved to database"+MASK_LOG);
+        }
 ```
 
 По запросам тоже добавил что по ключевому слову могли находить новости и сохранять у себя в базе:
 
 <img src="assets/slug.png"  alt="unlock"/>
 
+---
 
+## Обратная связь
 
+Если у вас есть какие-либо вопросы, пожалуйста, свяжитесь со мной по адресу ulankdt@gmail.com.
 
 
 
