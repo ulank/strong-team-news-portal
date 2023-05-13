@@ -5,7 +5,9 @@ import kz.ulank.strongteamnewsportal.common.exception.NotFoundException;
 import kz.ulank.strongteamnewsportal.entity.News;
 import kz.ulank.strongteamnewsportal.entity.Source;
 import kz.ulank.strongteamnewsportal.entity.Topic;
+import kz.ulank.strongteamnewsportal.integration.response.Articles;
 import kz.ulank.strongteamnewsportal.integration.response.EverythingResponse;
+import kz.ulank.strongteamnewsportal.integration.response.TopHeadlinesResponse;
 import kz.ulank.strongteamnewsportal.integration.service.NewsApiService;
 import kz.ulank.strongteamnewsportal.model.dto.NewsDto;
 import kz.ulank.strongteamnewsportal.model.dto.SourceDto;
@@ -150,41 +152,57 @@ public class NewsServiceImpl implements NewsService {
 
         EverythingResponse everythingBySlug = newsApiService.getEverythingBySlug(slug);
 
-        everythingBySlug.getArticles().forEach((EverythingResponse.Articles articles) -> {
+        everythingBySlug.getArticles().forEach((Articles articles) -> addNewsFromResponse(news, articles.getSource().getId(), articles.getSource().getName(), articles.getTitle(), articles.getContent(), articles.getAuthor(), articles.getDescription(), articles.getUrlToImage(), articles.getUrl(), articles.getPublishedAt()));
 
-            Source source;
+        return newsRepository.saveAll(news);
+    }
 
-            if (articles.getSource().getId() != null) {
-                source = sourceRepository.findById(articles.getSource().getId()).orElse(sourceRepository.save(modelMapper.map(new SourceDto(articles.getSource().getId(), articles.getSource().getName(), null), Source.class)));
-            } else {
-                source = sourceRepository.findSourceByNameStartsWith(articles.getSource().getName()).orElse(sourceRepository.save(modelMapper.map(new SourceDto(articles.getSource().getName().toLowerCase(), articles.getSource().getName(), null), Source.class)));
-            }
+    @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public List<News> saveNewsByNewsApi(String country) {
 
-            if (newsRepository.findByTitleStartsWith(articles.getTitle()).isEmpty())
-                news.add(News.builder()
-                        .title(articles.getTitle())
-                        .content(articles.getContent())
-                        .author(articles.getAuthor())
-                        .description(articles.getDescription())
-                        .source(source)
-                        .urlToImage(articles.getUrlToImage())
-                        .url(articles.getUrl())
-                        .published(true)
-                        .publishedAt(ZonedDateTime.parse(articles.getPublishedAt()))
-                        .build());
-        });
+        List<News> news = new ArrayList<>();
+
+        TopHeadlinesResponse topHeadlinesResponse = newsApiService.getTopHeadlinesResponse(country);
+
+        topHeadlinesResponse.getArticles().forEach((Articles articles) -> addNewsFromResponse(news, articles.getSource().getId(), articles.getSource().getName(), articles.getTitle(), articles.getContent(), articles.getAuthor(), articles.getDescription(), articles.getUrlToImage(), articles.getUrl(), articles.getPublishedAt()));
 
 
         return newsRepository.saveAll(news);
+    }
+
+    private void addNewsFromResponse(List<News> news, String id, String name, String title, String content, String author, String description, String urlToImage, String url, String publishedAt) {
+        Source source;
+
+        if (id != null) {
+            source = sourceRepository.findById(id).orElse(sourceRepository.save(modelMapper.map(new SourceDto(id, name, null), Source.class)));
+        } else {
+            source = sourceRepository.findSourceByNameStartsWith(name).orElse(sourceRepository.save(modelMapper.map(new SourceDto(name.toLowerCase(), name, null), Source.class)));
+        }
+
+        if (newsRepository.findByTitleStartsWith(title).isEmpty())
+            news.add(News.builder()
+                    .title(title)
+                    .content(content)
+                    .author(author)
+                    .description(description)
+                    .source(source)
+                    .urlToImage(urlToImage)
+                    .url(url)
+                    .published(true)
+                    .publishedAt(ZonedDateTime.parse(publishedAt))
+                    .build());
+
+        log.info(description);
     }
 
 
     /**
      * This method retrieves a paginated list of news articles with sorting. It retrieves the news articles from the news repository and returns them as a Pagination object.
      *
-     * @param offset  the number of articles to retrieve per page
-     * @param limit   the page number to retrieve
-     * @param sortBy the sorting field - default publishedAt
+     * @param offset   the number of articles to retrieve per page
+     * @param limit    the page number to retrieve
+     * @param sortBy   the sorting field - default publishedAt
      * @param sortType the sort order to apply (ascending or descending)
      * @return a Pagination object containing the retrieved news articles
      */
@@ -198,9 +216,9 @@ public class NewsServiceImpl implements NewsService {
      * This method retrieves news articles from a specific source with pagination and sorting applied. It retrieves the news articles from the data access object (DAO) using the provided source ID, offset, limit, sorting field, and sort order. It returns a Pagination object containing the retrieved news articles.
      *
      * @param sourceId the ID of the source to retrieve news articles from
-     * @param offset the offset to start retrieving articles from
-     * @param limit the maximum number of articles to retrieve per page
-     * @param sortBy the field to sort the articles by (default: publishedAt)
+     * @param offset   the offset to start retrieving articles from
+     * @param limit    the maximum number of articles to retrieve per page
+     * @param sortBy   the field to sort the articles by (default: publishedAt)
      * @param sortType the sort order to apply (ascending or descending)
      * @return a Pagination object containing the retrieved news articles
      */
@@ -213,10 +231,10 @@ public class NewsServiceImpl implements NewsService {
     /**
      * This method retrieves news articles related to a specific topic with pagination and sorting applied. It retrieves the news articles from the data access object (DAO) using the provided topic ID, offset, limit, sorting field, and sort order. It returns a Pagination object containing the retrieved news articles.
      *
-     * @param topicId the ID of the topic to retrieve news articles for
-     * @param offset the offset to start retrieving articles from
-     * @param limit the maximum number of articles to retrieve per page
-     * @param sortBy the field to sort the articles by (default: publishedAt)
+     * @param topicId  the ID of the topic to retrieve news articles for
+     * @param offset   the offset to start retrieving articles from
+     * @param limit    the maximum number of articles to retrieve per page
+     * @param sortBy   the field to sort the articles by (default: publishedAt)
      * @param sortType the sort order to apply (ascending or descending)
      * @return a Pagination object containing the retrieved news articles
      */

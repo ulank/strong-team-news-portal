@@ -10,7 +10,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class EverythingResponse {
+public class TopHeadlinesResponse {
     private String status;
     private int totalResults;
     private List<Articles> articles;

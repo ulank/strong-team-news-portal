@@ -1,13 +1,8 @@
 package kz.ulank.strongteamnewsportal.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.List;
 
 /**
  * Created by Ulan on 5/12/2023
@@ -28,12 +23,5 @@ public class Source {
 
     @Column(name = "url")
     private String url;
-
-    @OneToMany(mappedBy = "source", cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    @JsonIgnore
-    private List<News> news;
 
 }

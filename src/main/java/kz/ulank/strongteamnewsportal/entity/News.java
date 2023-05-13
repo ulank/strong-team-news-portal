@@ -2,12 +2,14 @@ package kz.ulank.strongteamnewsportal.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -55,7 +57,7 @@ public class News {
     @Column(name = "url_to_image")
     private String urlToImage;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "source_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Source source;
@@ -66,4 +68,16 @@ public class News {
     @Column(name = "published_at", columnDefinition = "TIMESTAMP")
     private ZonedDateTime publishedAt;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        News news = (News) o;
+        return getId() != null && Objects.equals(getId(), news.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

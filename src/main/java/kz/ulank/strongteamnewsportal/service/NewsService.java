@@ -16,6 +16,8 @@ public interface NewsService extends CrudOperation<News, NewsDto, UUID> {
 
     List<News> saveNewsUsingSlugByNewsApi(String slug);
 
+    List<News> saveNewsByNewsApi(String country);
+
     Pagination findAllWithPaginationAndSorting(int offset, int limit, String sortBy, OrderType sortType);
     Pagination findBySourceIdWithPaginationAndSorting(String sourceId, int offset, int limit, String sortBy, OrderType sortType);
 
