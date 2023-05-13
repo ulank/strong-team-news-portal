@@ -6,21 +6,108 @@
 
 <img src="https://strongte.am/logo.e9e07396.svg" alt="strong-team-icon"/>
 
- Выполнил задание Улан Кожабеков
+Выполнил задание Улан Кожабеков
 
- ulankdt@gmail.com | +77087314002
+ulankdt@gmail.com | +77087314002
 
 ---
 
 # Применение
 
-```
+```shell
 docker compose -f docker-compose-local.yml up -d
 ```
 
 NOTE: Проверьте доступен ли внейшний порт <code> 5433 </code>
 
+```yaml
+version: '3.9'
+
+services:
+  news-portal-db:
+    container_name: news-portal-db
+    image: postgres:15
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=50"
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "effective_cache_size=4GB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=512MB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "temp_file_limit=10GB"
+      - "-c"
+      - "log_min_duration_statement=200ms"
+      - "-c"
+      - "idle_in_transaction_session_timeout=10s"
+      - "-c"
+      - "lock_timeout=1s"
+      - "-c"
+      - "statement_timeout=60s"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+      - "-c"
+      - "pg_stat_statements.track=all"
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: news-portal-db
+      POSTGRES_USER: news-portal
+      POSTGRES_PASSWORD: pWiUuHyyb3Wl
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U news-portal -d news-portal" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+```
+
 Дальше запустите проект и запуститься миграция всех таблиц с помощью **Liquidbase**.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+	  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_1_create_auth_tables.sql"/>
+    </changeSet>
+
+    <changeSet id="2" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_2_insert_roles.sql"/>
+    </changeSet>
+
+    <changeSet id="3" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_3_create_logic_tables.sql"/>
+    </changeSet>
+
+    <changeSet id="4" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_4_alter_news_table.sql"/>
+    </changeSet>
+
+    <changeSet id="5" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_5_alter_news_table.sql"/>
+    </changeSet>
+
+    <changeSet id="6" author="Ulan" failOnError="true">
+        <sqlFile path="db/changes/230512_6_alter_news_table.sql"/>
+    </changeSet>
+
+</databaseChangeLog>
+```
 
 Liquibase - это инструмент для управления миграциями баз данных. Он позволяет разработчикам и администраторам баз данных
 управлять изменениями в базах данных в контролируемой и систематической манере. С помощью Liquibase можно создавать,
@@ -61,3 +148,55 @@ http://localhost:8089/swagger-ui/index.html#/
 
 ---
 <img src="assets/swagger-lock.png" alt="swagger-lock"/>
+---
+После перейдите на [Auth Controller APIs](http://localhost:8089/swagger-ui/index.html#/Auth)
+
+<img src="assets/signup.png" alt="signup"/>
+
+Таков ответ дольжен вернуть.
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1bGFudGFpIiwiaWF0IjoxNjgzOTc2NTg1LCJleHAiOjE2ODQwNjI5ODV9.FIz0DOcvn2FB52xFrclMG8Isb6HZ4I9w2BmjCxfnBUo",
+  "refresh_token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1bGFudGFpIiwiaWF0IjoxNjgzOTc2NTg1LCJleHAiOjE2ODQ1ODEzODV9.htUgEchcPxtiePsKd14V7NWqnt0kFSvtHMSlcj_bR0I"
+}
+```
+
+Дальше присвоиваете токен:
+
+<img src="assets/unlock.png" alt="unlock"/>
+
+Если токен не присвоен или просрочился то выйдет
+
+```
+ 401 Unauthorized
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
