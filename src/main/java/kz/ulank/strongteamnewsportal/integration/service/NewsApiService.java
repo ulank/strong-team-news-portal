@@ -5,7 +5,6 @@ import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import kz.ulank.strongteamnewsportal.integration.client.NewsApiClient;
 import kz.ulank.strongteamnewsportal.integration.config.NewsApiConfig;
-import kz.ulank.strongteamnewsportal.integration.enums.EverythingLang;
 import kz.ulank.strongteamnewsportal.integration.response.EverythingResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

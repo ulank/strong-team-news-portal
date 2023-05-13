@@ -2,7 +2,6 @@ package kz.ulank.strongteamnewsportal.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UuidGenerator;
@@ -56,7 +55,7 @@ public class News {
     @Column(name = "url_to_image")
     private String urlToImage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "source_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Source source;

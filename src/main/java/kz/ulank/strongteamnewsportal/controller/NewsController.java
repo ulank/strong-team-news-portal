@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.ulank.strongteamnewsportal.entity.News;
-import kz.ulank.strongteamnewsportal.integration.enums.EverythingLang;
 import kz.ulank.strongteamnewsportal.model.dto.NewsDto;
 import kz.ulank.strongteamnewsportal.service.NewsService;
+import kz.ulank.strongteamnewsportal.util.model.OrderType;
 import kz.ulank.strongteamnewsportal.util.model.Pagination;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,9 +48,39 @@ public class NewsController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/pagination")
-    public Pagination findAllWithPagination(@RequestParam(defaultValue = "true") boolean isPublished, @RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "100") int pageSize) {
-        return newsService.findAllByPublished(isPublished, page, pageSize);
+    public Pagination findAllWithPagination(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "100") int pageSize,
+                                            @RequestParam(defaultValue = "publishedAt") String sortBy,
+                                            @RequestParam(defaultValue = "ASC") OrderType sortType) {
+        return newsService.findAllWithPaginationAndSorting(page, pageSize, sortBy, sortType);
+    }
+
+    @SecurityRequirements
+    @Operation(summary = "Get by sourceId articles with pagination", description = "Retrieves a list of all news articles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of news articles"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/pagination/sourceId/{sourceId}")
+    public Pagination findBySourceIdWithPagination(@RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "100") int pageSize,
+                                                   @RequestParam(defaultValue = "publishedAt") String sortBy,
+                                                   @RequestParam(defaultValue = "ASC") OrderType sortType, @PathVariable String sourceId) {
+        return newsService.findBySourceIdWithPaginationAndSorting(sourceId, page, pageSize, sortBy, sortType);
+    }
+
+    @SecurityRequirements
+    @Operation(summary = "Get by topicId articles with pagination", description = "Retrieves a list of all news articles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of news articles"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/pagination/topicId/{topicId}")
+    public Pagination findByTopicIdWithPagination(@RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "100") int pageSize,
+                                                   @RequestParam(defaultValue = "publishedAt") String sortBy,
+                                                   @RequestParam(defaultValue = "ASC") OrderType sortType, @PathVariable Long topicId) {
+        return newsService.findByTopicIdWithPaginationAndSorting(topicId, page, pageSize, sortBy, sortType);
     }
 
 
@@ -120,7 +150,7 @@ public class NewsController {
             @ApiResponse(responseCode = "200", description = "Successfully saved and retrieved the list of news articles"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PatchMapping("/fill-news/slug/{slug}")
+    @PatchMapping("/fill/slug/{slug}")
     public ResponseEntity<List<News>> fillNews(@PathVariable String slug) {
         return new ResponseEntity<>(newsService.saveNewsUsingSlugByNewsApi(slug), HttpStatus.OK);
     }

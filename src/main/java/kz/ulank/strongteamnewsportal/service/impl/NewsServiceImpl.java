@@ -1,10 +1,10 @@
 package kz.ulank.strongteamnewsportal.service.impl;
 
+import kz.ulank.strongteamnewsportal.dao.NewsDao;
 import kz.ulank.strongteamnewsportal.common.exception.NotFoundException;
 import kz.ulank.strongteamnewsportal.entity.News;
 import kz.ulank.strongteamnewsportal.entity.Source;
 import kz.ulank.strongteamnewsportal.entity.Topic;
-import kz.ulank.strongteamnewsportal.integration.enums.EverythingLang;
 import kz.ulank.strongteamnewsportal.integration.response.EverythingResponse;
 import kz.ulank.strongteamnewsportal.integration.service.NewsApiService;
 import kz.ulank.strongteamnewsportal.model.dto.NewsDto;
@@ -13,20 +13,16 @@ import kz.ulank.strongteamnewsportal.repository.NewsRepository;
 import kz.ulank.strongteamnewsportal.repository.SourceRepository;
 import kz.ulank.strongteamnewsportal.repository.TopicRepository;
 import kz.ulank.strongteamnewsportal.service.NewsService;
+import kz.ulank.strongteamnewsportal.util.model.OrderType;
 import kz.ulank.strongteamnewsportal.util.model.Pagination;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +37,7 @@ public class NewsServiceImpl implements NewsService {
 
     private final ModelMapper modelMapper;
     private final NewsRepository newsRepository;
+    private final NewsDao newsDao;
     private final SourceRepository sourceRepository;
     private final TopicRepository topicRepository;
     private final NewsApiService newsApiService;
@@ -71,7 +68,6 @@ public class NewsServiceImpl implements NewsService {
                 .published(true)
                 .build();
 
-        log.info(news.toString());
         return newsRepository.save(news);
     }
 
@@ -91,7 +87,6 @@ public class NewsServiceImpl implements NewsService {
         newEntity.getTopics().forEach(topicDto -> topics.add(topicRepository.findTopicByNameStartsWith(topicDto.getName()).orElse(modelMapper.map(topicDto, Topic.class))));
 
         News news = findById(id);
-
         news.setTitle(newEntity.getTitle());
         news.setContent(newEntity.getContent());
         news.setAuthor(newEntity.getAuthor());
@@ -183,21 +178,51 @@ public class NewsServiceImpl implements NewsService {
         return newsRepository.saveAll(news);
     }
 
+
     /**
-     * This method retrieves a paginated list of news articles by their published status. It retrieves the news articles from the news repository and returns them as a Pagination object.
+     * This method retrieves a paginated list of news articles with sorting. It retrieves the news articles from the news repository and returns them as a Pagination object.
      *
-     * @param published the published status of the news articles to retrieve
-     * @param page      the page number to retrieve
-     * @param size      the number of articles to retrieve per page
+     * @param offset  the number of articles to retrieve per page
+     * @param limit   the page number to retrieve
+     * @param sortBy the sorting field - default publishedAt
+     * @param sortType the sort order to apply (ascending or descending)
      * @return a Pagination object containing the retrieved news articles
      */
     @Override
-    public Pagination findAllByPublished(boolean published, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<News> pageNews = newsRepository.findNewsByPublished(published, paging);
-        List<News> news = pageNews.getContent();
-        Pagination build = Pagination.builder().articles(news).page(page).pageSize(size).totalResults(news.size()).build();
-        log.debug(build.toString());
-        return build;
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public Pagination findAllWithPaginationAndSorting(int offset, int limit, String sortBy, OrderType sortType) {
+        return newsDao.findAllWithPaginationAndSorting(offset, limit, sortBy, sortType);
     }
+
+    /**
+     * This method retrieves news articles from a specific source with pagination and sorting applied. It retrieves the news articles from the data access object (DAO) using the provided source ID, offset, limit, sorting field, and sort order. It returns a Pagination object containing the retrieved news articles.
+     *
+     * @param sourceId the ID of the source to retrieve news articles from
+     * @param offset the offset to start retrieving articles from
+     * @param limit the maximum number of articles to retrieve per page
+     * @param sortBy the field to sort the articles by (default: publishedAt)
+     * @param sortType the sort order to apply (ascending or descending)
+     * @return a Pagination object containing the retrieved news articles
+     */
+    @Override
+    public Pagination findBySourceIdWithPaginationAndSorting(String sourceId, int offset, int limit, String sortBy, OrderType sortType) {
+        return newsDao.findBySourceIdWithPaginationAndSorting(sourceId, offset, limit, sortBy, sortType);
+    }
+
+
+    /**
+     * This method retrieves news articles related to a specific topic with pagination and sorting applied. It retrieves the news articles from the data access object (DAO) using the provided topic ID, offset, limit, sorting field, and sort order. It returns a Pagination object containing the retrieved news articles.
+     *
+     * @param topicId the ID of the topic to retrieve news articles for
+     * @param offset the offset to start retrieving articles from
+     * @param limit the maximum number of articles to retrieve per page
+     * @param sortBy the field to sort the articles by (default: publishedAt)
+     * @param sortType the sort order to apply (ascending or descending)
+     * @return a Pagination object containing the retrieved news articles
+     */
+    @Override
+    public Pagination findByTopicIdWithPaginationAndSorting(Long topicId, int offset, int limit, String sortBy, OrderType sortType) {
+        return newsDao.findByTopicIdWithPaginationAndSorting(topicId, offset, limit, sortBy, sortType);
+    }
+
 }

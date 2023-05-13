@@ -1,8 +1,8 @@
 package kz.ulank.strongteamnewsportal.service;
 
 import kz.ulank.strongteamnewsportal.entity.News;
-import kz.ulank.strongteamnewsportal.integration.enums.EverythingLang;
 import kz.ulank.strongteamnewsportal.model.dto.NewsDto;
+import kz.ulank.strongteamnewsportal.util.model.OrderType;
 import kz.ulank.strongteamnewsportal.util.model.Pagination;
 import kz.ulank.strongteamnewsportal.util.operation.CrudOperation;
 
@@ -16,5 +16,8 @@ public interface NewsService extends CrudOperation<News, NewsDto, UUID> {
 
     List<News> saveNewsUsingSlugByNewsApi(String slug);
 
-    Pagination findAllByPublished(boolean published, int page, int size);
+    Pagination findAllWithPaginationAndSorting(int offset, int limit, String sortBy, OrderType sortType);
+    Pagination findBySourceIdWithPaginationAndSorting(String sourceId, int offset, int limit, String sortBy, OrderType sortType);
+
+    Pagination findByTopicIdWithPaginationAndSorting(Long topicId, int offset, int limit, String sortBy, OrderType sortType);
 }
