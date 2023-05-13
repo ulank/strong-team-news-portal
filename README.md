@@ -151,7 +151,7 @@ http://localhost:8089/swagger-ui/index.html#/
 ---
 После перейдите на [Auth Controller APIs](http://localhost:8089/swagger-ui/index.html#/Auth)
 
-<img src="assets/signup.png" width="1759" height="866" alt="signup"/>
+и зарегайтесь <code>username</code> и <code>email</code> должен быть уникальным.
 
 Таков ответ дольжен вернуть.
 
@@ -164,7 +164,7 @@ http://localhost:8089/swagger-ui/index.html#/
 
 Дальше присвоиваете токен:
 
-<img src="assets/unlock.png" width="1616" height="1175" alt="unlock"/>
+<img src="assets/unlock.png"  alt="unlock"/>
 
 Если токен не присвоен или просрочился то выйдет
 
@@ -174,19 +174,76 @@ http://localhost:8089/swagger-ui/index.html#/
 
 ---
 
-1. [ ] GET, POST, PUT, DELETE методы для источников новостей;
-2. [ ] GET, POST, PUT, DELETE методы для новостей;
-3. [ ] GET, POST, PUT, DELETE методы для новостных тем;
-4. [ ] GET метод получения списка всех источников новостей;
-5. [ ] GET метод получения списка всех тем новостей;
-6. [ ] GET метод получения списка всех новостей (с пагинацией);
-7. [ ] GET метод получения списка новостей по id источника (с пагинацией);
-8. [ ] GET метод получения списка новостей по id темы (с пагинацией);
+| REST запросы                                                        |                   Ссылки                    |
+|:--------------------------------------------------------------------|:-------------------------------------------:|
+| GET, POST, PUT, DELETE методы для источников новостей;              |           Source Controller APIs            | 
+| GET, POST, PUT, DELETE методы для новостей;                         |            News Controller APIs             | 
+| GET, POST, PUT, DELETE методы для новостных тем;                    |            Topic Controller APIs            | 
+| GET метод получения списка всех источников новостей;                |               /api/v1/source                | 
+| GET метод получения списка всех тем новостей;                       |                /api/v1/topic                | 
+| GET метод получения списка всех новостей (с пагинацией);            |           /api/v1/news/pagination           | 
+| GET метод получения списка новостей по id источника (с пагинацией); | /api/v1/news/pagination/sourceId/{sourceId} | 
+| GET метод получения списка новостей по id темы (с пагинацией);      |  /api/v1/news/pagination/topicId/{topicId}  | 
 
+---
 
+## Документация планнеров
   
+```java
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Almaty")
+    public void storingNewsEachSources() {
+        log.info(MASK_LOG + "Stored sources to temporary directory starting" + MASK_LOG);
 
+        List<Source> sources = sourceRepository.findAll();
 
+        GsonBuilder gsonBuilder = new GsonBuilder();
+
+        gsonBuilder.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY);
+        gsonBuilder.registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeTypeAdapter());
+
+        Gson gson = gsonBuilder
+                .create();
+
+        if (sources.size() > 0)
+            sources.forEach(source -> {
+                File folder = new File(TEMP_FOLDER_LOCATION + "/" + source.getName());
+                if (!folder.exists()) {
+                    if (folder.mkdir()) {
+                        File file = new File(TEMP_FOLDER_LOCATION + "/" + source.getName() + "/" + LocalDateTime.now().format(LOCAL_TIME_FORMATTER) + "-" + (source.getId() != null ? source.getId() : source.getName()) + FILE_TYPE);
+                        try {
+                            if (file.createNewFile()) {
+                                FileWriter fileWriter = new FileWriter(file);
+
+                                List<News> news;
+
+                                if (source.getId() != null) {
+                                    news = newsRepository.findNewsBySourceId(source.getId());
+                                } else {
+                                    news = newsRepository.findNewsBySourceName(source.getName());
+                                }
+
+                                fileWriter.write(gson.toJson(news));
+                                fileWriter.close();
+                            } else {
+                                System.out.println("Failed to create file!");
+                            }
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    } else {
+                        System.out.println("Failed to create directory!");
+                    }
+                }
+            });
+
+        log.info(MASK_LOG + "Stored sources to temporary directory is done" + MASK_LOG);
+    }
+```
+
+Все источники храняться в <code>src/main/resources/temp</code> сначал открывается папка для источника затем заполняется новостями.
+
+<img src="assets/storing.png"  alt="unlock"/>
 
 
 
